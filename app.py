@@ -1,47 +1,77 @@
-import openai
 import streamlit as st
+import openai
 import requests
+from PIL import Image, ImageDraw
+from io import BytesIO
 import base64
-from PIL import Image
-import io
 
+# Set up OpenAI API key
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-def create_image(prompt):
-    response = openai.Image.create(prompt=prompt, n=1, size="512x512", model="image-alpha-001")
-    return response['data'][0]['url']
-
-def edit_image(image_url, prompt):
-    response = openai.Image.create_edit(image_url=image_url, prompt=prompt, n=1, model="image-alpha-001")
-    return response['data'][0]['url']
-
-def create_variation(image_url, prompt):
-    response = openai.Image.create_variation(image_url=image_url, prompt=prompt, n=1, model="image-alpha-001")
-    return response['data'][0]['url']
-
-def get_image_download_link(image_url, filename, text):
-    img_data = requests.get(image_url).content
+def get_image_download_link(img_url, filename, text):
+    img_data = requests.get(img_url).content
     b64 = base64.b64encode(img_data).decode()
-    return f'<a href="data:image/png;base64,{b64}" download="{filename}" target="_blank">{text}</a>'
+    return f'<a href="data:image/png;base64,{b64}" download="{filename}">{text}</a>'
 
-st.title("Image Generation and Editing with OpenAI")
+st.set_page_config(layout="wide")
 
-# Image upload
-uploaded_file = st.file_uploader("Upload an image (optional)", type=["png", "jpg", "jpeg"])
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded image", use_column_width=True)
-    uploaded_image_url = f"data:image/jpeg;base64,{base64.b64encode(uploaded_file.getvalue()).decode()}"
+st.title("OpenAI Image API Demo")
 
-# Text prompt
-prompt = st.text_input("Enter a description to generate or edit an image:")
+st.write("## Generate Image from Text")
+image_prompt = st.text_input("Enter a description to generate an image:")
 
 if st.button("Generate Image"):
-    if uploaded_file is not None:
-        edited_image_url = edit_image(uploaded_image_url, prompt)
-        st.image(edited_image_url, caption="Edited image", use_column_width=True)
-        st.markdown(get_image_download_link(edited_image_url, "edited_image.png", "Download edited image"), unsafe_allow_html=True)
-    else:
-        generated_image_url = create_image(prompt)
-        st.image(generated_image_url, caption="Generated image", use_column_width=True)
-        st.markdown(get_image_download_link(generated_image_url, "generated_image.png", "Download generated image"), unsafe_allow_html=True)
+    payload = {
+        "description": image_prompt,
+        "model": "image-alpha-001",
+    }
+
+    response = openai.Image.create(**payload)
+    generated_image_url = response["url"]
+
+    st.image(generated_image_url, caption="Generated Image", use_column_width=True)
+    st.markdown(get_image_download_link(generated_image_url, "generated_image.png", "Download generated image"), unsafe_allow_html=True)
+
+st.write("## Edit Image with Mask")
+uploaded_image = st.file_uploader("Upload an image to edit with mask", type=["png", "jpg", "jpeg"])
+
+if uploaded_image is not None:
+    original_image = Image.open(uploaded_image)
+    st.image(original_image, caption="Original Image", use_column_width=True)
+
+    edit_description = st.text_input("Enter a description to edit the image with mask:")
+    mask_color = st.color_picker("Select a mask color:", value="#FF0000")
+
+    x1 = st.number_input("Mask X1 position:", value=0)
+    y1 = st.number_input("Mask Y1 position:", value=0)
+    x2 = st.number_input("Mask X2 position:", value=100)
+    y2 = st.number_input("Mask Y2 position:", value=100)
+
+    if st.button("Edit Image with Mask"):
+        # Create a copy of the original image to draw the mask
+        image_with_mask = original_image.copy()
+        draw = ImageDraw.Draw(image_with_mask)
+        draw.rectangle([x1, y1, x2, y2], fill=mask_color)
+        st.image(image_with_mask, caption="Image with Mask", use_column_width=True)
+
+        # Convert the image with mask to base64
+        buffered = BytesIO()
+        image_with_mask.save(buffered, format="PNG")
+        base64_encoded_image_with_mask = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+        edit_payload = {
+            "image": base64_encoded_image_with_mask,
+            "description": edit_description,
+            "model": "image-alpha-001",
+        }
+
+        edit_response = openai.Image.create_edit(**edit_payload)
+        edited_image_url = edit_response["url"]
+
+        st.image(edited_image_url, caption="Edited Image", use_column_width=True)
+        st.markdown(get_image_download_link(edited_image_url, "edited_image_with_mask.png", "Download edited image with mask"), unsafe_allow_html=True)
+
+# Request frequency limit
+st.write("## Request Frequency Limit")
+requests_per_minute = st.number_input("Enter maximum requests per minute:", min_value=1, value=10)
+st.write("Limit your app to ", requests_per_minute, " requests per minute.")
