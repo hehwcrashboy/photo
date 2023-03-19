@@ -15,7 +15,7 @@ def get_image_download_link(img_data, filename, text):
     return href
 
 # 显示生成的图像
-def display_generated_image(url):
+def display_generated_image(url,width=300):
     response = requests.get(url)
     img = Image.open(io.BytesIO(response.content))
     st.image(img, caption="Generated Image", use_column_width=True)
