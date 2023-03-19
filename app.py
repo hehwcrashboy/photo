@@ -74,7 +74,7 @@ if uploaded_image is not None:
         edited_image_url = edit_response["url"]
 
         st.image(edited_image_url, caption="Edited Image", width=300)
-        st.markdown(get_image_download_link(edited_image_url, "edited_image_with_mask.png", "Download edited image with mask"), unsafe_allow_html=True
+        st.markdown(get_image_download_link(edited_image_url, "edited_image_with_mask.png", "Download edited image with mask"), unsafe_allow_html=True),
 # Request frequency limit
 st.write("## Request Frequency Limit")
 requests_per_minute = st.number_input("Enter maximum requests per minute:", min_value=1, value=10)
