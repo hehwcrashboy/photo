@@ -78,6 +78,7 @@ if uploaded_image is not None:
         edit_payload = {
             "image": base64_encoded_image_with_mask,
             "model": "image-alpha-001",
+            "prompt": edit_description,
         }
 
         edit_response = openai.Image.create_edit(**edit_payload)
