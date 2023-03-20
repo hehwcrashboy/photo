@@ -1,6 +1,6 @@
 import openai
 import streamlit as st
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import base64
 import requests
