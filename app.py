@@ -4,18 +4,21 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import base64
 import requests
+import zipfile
 
 # Set your API key
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Download Noto Sans font
-noto_sans_url = "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSans/NotoSans-Regular.ttf"
+noto_sans_url = "https://fonts.google.com/download?family=Noto%20Sans"
 response = requests.get(noto_sans_url)
-with open("NotoSans-Regular.ttf", "wb") as f:
+with open("noto_sans.zip", "wb") as f:
     f.write(response.content)
 
-# Load Noto Sans font
-noto_sans_font = ImageFont.truetype("NotoSans-Regular.ttf", 16)
+# Unzip and load Noto Sans font
+with zipfile.ZipFile("noto_sans.zip", "r") as zip_ref:
+    zip_ref.extractall("noto_sans")
+noto_sans_font = ImageFont.truetype("noto_sans/NotoSans-Regular.ttf", 16)
 
 # Streamlit app title
 st.title("Image Generation and Editing with OpenAI")
