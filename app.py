@@ -9,7 +9,7 @@ import requests
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Download Noto Sans font
-noto_sans_url = "https://fonts.gstatic.com/s/notosans/v11/o-0IIpQlx3QUlC5A4PNjwUTP4p4.woff2"
+noto_sans_url = "https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSans/NotoSans-Regular.ttf"
 response = requests.get(noto_sans_url)
 with open("NotoSans-Regular.ttf", "wb") as f:
     f.write(response.content)
@@ -32,7 +32,6 @@ image_description = st.text_input("Enter a description to generate an image:")
 
 def write_text_on_image(image, text):
     draw = ImageDraw.Draw(image)
-    font = ImageFont.load_default()
     draw.text((10, 10), text, font=noto_sans_font, fill=(255, 255, 255))
 
 if st.button("Generate Image"):
