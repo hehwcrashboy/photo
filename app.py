@@ -21,6 +21,11 @@ def get_image_download_link(img_url, filename, text):
 st.header("Image Creation")
 image_description = st.text_input("Enter a description to generate an image:")
 
+def write_text_on_image(image, text):
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.load_default()
+    draw.text((10, 10), text, font=font, fill=(255, 255, 255))
+
 if st.button("Generate Image"):
     st.markdown("Generating image...")
 
@@ -58,6 +63,11 @@ if uploaded_image is not None:
         image_with_mask = original_image.copy()
         draw = ImageDraw.Draw(image_with_mask)
         draw.rectangle([x1, y1, x2, y2], fill=mask_color)
+        
+        # Write the description text on the image
+        edit_description = st.text_input("Enter a description to edit the image with mask:")
+        write_text_on_image(image_with_mask, edit_description)
+       
         st.image(image_with_mask, caption="Image with Mask", width=300)
 
         # Convert the image with mask to base64
@@ -65,10 +75,8 @@ if uploaded_image is not None:
         image_with_mask.save(buffered, format="PNG")
         base64_encoded_image_with_mask = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
-        edit_description = st.text_input("Enter a description to edit the image with mask:")
         edit_payload = {
             "image": base64_encoded_image_with_mask,
-            "description": edit_description,
             "model": "image-alpha-001",
         }
 
