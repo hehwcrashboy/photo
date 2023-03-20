@@ -58,6 +58,7 @@ if uploaded_image is not None:
     x2 = st.number_input("Mask X2 position:", value=100)
     y2 = st.number_input("Mask Y2 position:", value=100)
 
+    edit_description = st.text_input("Enter a description to edit the image with mask:")
     if st.button("Edit Image with Mask"):
       if edit_description.strip() == "":
         st.warning("Please enter a description before editing the image.")
@@ -68,7 +69,6 @@ if uploaded_image is not None:
         draw.rectangle([x1, y1, x2, y2], fill=mask_color)
         
         # Write the description text on the image
-        edit_description = st.text_input("Enter a description to edit the image with mask:")
         write_text_on_image(image_with_mask, edit_description)
        
         st.image(image_with_mask, caption="Image with Mask", width=300)
