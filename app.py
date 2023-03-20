@@ -8,6 +8,15 @@ import requests
 # Set your API key
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
+# Download Noto Sans font
+noto_sans_url = "https://fonts.gstatic.com/s/notosans/v11/o-0IIpQlx3QUlC5A4PNjwUTP4p4.woff2"
+response = requests.get(noto_sans_url)
+with open("NotoSans-Regular.ttf", "wb") as f:
+    f.write(response.content)
+
+# Load Noto Sans font
+noto_sans_font = ImageFont.truetype("NotoSans-Regular.ttf", 16)
+
 # Streamlit app title
 st.title("Image Generation and Editing with OpenAI")
 
@@ -24,7 +33,7 @@ image_description = st.text_input("Enter a description to generate an image:")
 def write_text_on_image(image, text):
     draw = ImageDraw.Draw(image)
     font = ImageFont.load_default()
-    draw.text((10, 10), text, font=font, fill=(255, 255, 255))
+    draw.text((10, 10), text, font=noto_sans_font, fill=(255, 255, 255))
 
 if st.button("Generate Image"):
     st.markdown("Generating image...")
