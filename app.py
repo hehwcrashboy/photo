@@ -59,6 +59,9 @@ if uploaded_image is not None:
     y2 = st.number_input("Mask Y2 position:", value=100)
 
     if st.button("Edit Image with Mask"):
+      if edit_description.strip() == "":
+        st.warning("Please enter a description before editing the image.")
+      else:
         # Create a copy of the original image to draw the mask
         image_with_mask = original_image.copy()
         draw = ImageDraw.Draw(image_with_mask)
