@@ -3,12 +3,19 @@ import streamlit as st
 from PIL import Image, ImageDraw
 from io import BytesIO
 import base64
+import requests
 
 # Set your API key
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Streamlit app title
 st.title("Image Generation and Editing with OpenAI")
+
+# Define the get_image_download_link function here
+def get_image_download_link(img_url, filename, text):
+    img_data = requests.get(img_url).content
+    b64 = base64.b64encode(img_data).decode()
+    return f'<a href="data:image/png;base64,{b64}" download="{filename}">{text}</a>'
 
 # Image creation
 st.header("Image Creation")
@@ -35,11 +42,6 @@ if st.button("Generate Image"):
 # Image editing with mask
 st.header("Image Editing with Mask")
 uploaded_image = st.file_uploader("Upload an image for editing:")
-
-def get_image_download_link(img_url, filename, text):
-    img_data = requests.get(img_url).content
-    b64 = base64.b64encode(img_data).decode()
-    return f'<a href="data:image/png;base64,{b64}" download="{filename}">{text}</a>'
 
 if uploaded_image is not None:
     original_image = Image.open(uploaded_image)
