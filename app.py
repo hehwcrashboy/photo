@@ -87,10 +87,10 @@ if uploaded_image is not None:
         # Convert the image with mask to base64
         buffered = BytesIO()
         image_with_mask.save(buffered, format="PNG")
-        img_data = buffered.getvalue()
+        base64_encoded_image_with_mask = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
         edit_payload = {
-            "image": img_data,
+            "image": "data:image/png;base64," + base64_encoded_image_with_mask,
             "model": "image-alpha-001",
             "prompt": edit_description,
         }
