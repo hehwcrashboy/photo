@@ -5,7 +5,7 @@ from io import BytesIO
 import base64
 
 # Set your API key
-openai.api_key = "your_openai_api_key_here"
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # Streamlit app title
 st.title("Image Generation and Editing with OpenAI")
